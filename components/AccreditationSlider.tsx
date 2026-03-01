@@ -10,9 +10,9 @@ type Card = {
 
 const cards: Card[] = [
   { title: "AICTE (where applicable)", img: "/AICTE .png" },
-  { title: "NAAC Accredited",          img: "/naac.png"  },
+  { title: "NAAC Accredited",          img: "/NAAC.png"  },
   { title: "UGC Recognised",           img: "/UGC .png"   },
-  { title: "AIU Recognised",           img: "/aiu.png"   },
+  { title: "AIU Recognised",           img: "/AIU.png"   },
 ];
 
 // ─── Slider config ───────────────────────────────────────────

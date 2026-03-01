@@ -82,14 +82,7 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
           </button>
         </div>
 
-        {/* Logo */}
-        <div className="flex justify-center px-6 pb-3 -mt-2">
-          <img
-            src="/logo.jpg"
-            alt="Logo"
-            className="h-8 md:h-10 object-contain"
-          />
-        </div>
+        
 
         {/* Heading */}
         <h2 className="font-patrick text-center text-gray-900 font-bold text-base md:text-lg px-6">

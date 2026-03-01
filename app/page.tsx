@@ -392,7 +392,7 @@ useEffect(() => {
             </p>
             <div className="mb-4 md:hidden">
               <img
-                src="/Ignou.jpg"
+                src="/ignou.jpg"
                 alt="Ignou Campus"
                 className="w-full h-56 object-cover rounded-lg shadow"
               />
@@ -434,7 +434,7 @@ useEffect(() => {
           <div className="relative hidden md:block">
             <div className=" overflow-hidden shadow-2xl ">
               <img
-                src="/Ignou.jpg"
+                src="/ignou.jpg"
                 alt="Ignou Campus"
                 className="w-full h-[22rem] md:h-[30rem] object-cover"
               />
