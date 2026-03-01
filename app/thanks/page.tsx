@@ -9,7 +9,7 @@ export default function ThankYouPage() {
         setMounted(true);
         if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
             (window as any).gtag("event", "conversion", {
-                send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
+                send_to: "AW-17973330000/u2llCIrsiIEcEPqPrfpC",
             });
         }
     }, []);
