@@ -7,10 +7,12 @@ import AccreditationSlider from "@/components/AccreditationSlider";
 // ── Types ──────────────────────────────────────────────────────────────
 interface Program {
   title: string;
+  specialization?: string;
+  level?: string;
   eligibility: string;
   duration: string;
   fee: string;
-  type: "UG" | "PG";
+  type?: string;
   image: string;
 }
 
@@ -212,66 +214,67 @@ const programs: Program[] = [
   // PG Courses (Masters)
   {
     title: "Online MBA",
-    eligibility: "Bachelor's (Recognised)",
-    duration: "2 Years (4 Semesters)",
-    fee: "Rs. 40400/Semester",
+    specialization: "13 Specilizations",
+    eligibility: "Bachelor's Degree",
+    duration: "2 Years ",
+    fee: "Rs. ₹ 37,800",
     type: "PG",
     image: "/OnlineMBA.jpg",
   },
   {
-    title: "Online M.Com",
-    eligibility: "Bachelor's (Recognised)",
-    duration: "2 Years (4 Semesters)",
-    fee: "Rs. 20400/Semester",
+    title: "Dual MBA",
+    eligibility: "Bachelor's Degree",
+    duration: "2 Years ",
+    fee: "Rs. ₹ 24,000",
     type: "PG",
     image: "/OnlineMCom.jpg",
   },
   {
-    title: "Online MCA",
-    eligibility: "Bachelor's (Recognised)",
-    duration: "2 Years (4 Semesters)",
-    fee: "Rs. 30000/Semester",
+    title: "1 Year MBA",
+    eligibility: "Bachelor's Degree",
+    duration: "1 Years ",
+    fee: "Rs. ₹ 40,000",
     type: "PG",
     image: "/OnlineMCA.jpg",
   },
   {
-    title: "Online MA",
-    eligibility: "Bachelor's (Recognised)",
-    duration: "2 Years (4 Semesters)",
-    fee: "Rs. 16400/Semester",
+    title: "Online MCA",
+    eligibility: "Graducation from BCA/B.Sc",
+    duration: "2 Years ",
+    fee: "Rs. ₹ 48,000",
     type: "PG",
     image: "/OnlineMA.jpg",
   },
   {
-    title: "Online M.Sc (Mathematics)",
-    eligibility: "12th (PCM/Physics and Math)",
-    duration: "2 Years (4 Semesters)",
-    fee: "Rs. 16400/Semester",
+    title: "Online M.COM ",
+    eligibility: "Bachelor's Degree",
+    duration: "2 Years ",
+    fee: "Rs. ₹ 16200",
     type: "PG",
     image: "/OnlineBBA.jpg",
   },
   // UG Courses (Bachelor's)
   {
-    title: "Online BCA",
-    eligibility: "10+2 (Any board)",
-    duration: "3 Years (6 Semesters)",
-    fee: "Rs. 20400/Semester",
+    title: "Online BBA",
+    eligibility: "10+2 from recognized board",
+    duration: "3 Years ",
+    fee: "Rs. 27,000",
     type: "UG",
     image: "/OnlineBCA.jpg",
   },
   {
-    title: "Online BBA",
-    eligibility: "10+2 (Any board)",
-    duration: "3 Years (6 Semesters)",
-    fee: "Rs. 20400/Semester",
+    title: "Online B.Com",
+    eligibility: "10+2 of Equivalent qualification",
+    duration: "3 Years ",
+    fee: "Rs. 10,500",
     type: "UG",
     image: "/OnlineBBA.jpg",
   },
   {
-    title: "Online BA",
-    eligibility: "10+2 (Any board)",
-    duration: "3 Years (6 Semesters)",
-    fee: "Rs. 16400/Semester",
+    title: "Online BCA",
+    eligibility: "10+2 of its equivalent",
+    duration: "3 Years ",
+    fee: "Rs. 40,200",
     type: "UG",
     image: "OnlineMCom.jpg",
   },
@@ -553,81 +556,112 @@ useEffect(() => {
       </section>
 
       {/* ─── PROGRAMS GRID ──────────────────────────────────────────────── */}
-      <section id="programs" className="py-16 bg-gray-50">
-        <div className="max-w-screen-2xl mx-auto px-6 md:px-10">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-2">
-            Online Master&apos;s &amp; Bachelor&apos;s Program
-          </h2>
-          <p className="text-gray-500 text-center text-sm mb-8">
-            UGC entitled degrees. Industry recognized. 100% online.
-          </p>
+<section id="programs" className="py-16 bg-gray-50">
+  <div className="max-w-screen-2xl mx-auto px-6 md:px-10">
 
-          {/* Filter Tabs — only 3 buttons */}
-          <div className="flex gap-3 justify-center mb-10">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2.5 rounded-md text-sm font-bold transition-all border ${activeTab === tab
-                    ? "px-6 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-blue-600 to-yellow-400 hover:from-blue-700 hover:to-yellow-500 transition-all duration-300 shadow-md"
-                    : "bg-white text-1xl text-orange-300 border-orange-400 hover:bg-blue-50"
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
+    <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-2">
+      Online U.G and P.G courses
+    </h2>
+
+    
+
+    {/* Tabs */}
+    <div className="flex gap-3 justify-center mb-10 flex-wrap">
+      {tabs.map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all border ${
+            activeTab === tab
+              ? "text-white bg-gradient-to-r from-blue-600 to-yellow-400 shadow-md"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+          }`}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+
+    {/* Cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {filteredPrograms.map((p) => (
+        <div
+          key={p.title}
+          className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1"
+        >
+
+          {/* Image */}
+          <div className="relative overflow-hidden h-44">
+            <img
+              src={p.image}
+              alt={p.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPrograms.map((p) => (
-              <div
-                key={p.title}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-1"
-              >
-                <div className="relative overflow-hidden h-44">
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 text-white font-extrabold text-lg">
-                    {p.title}
-                  </div>
-                  {/* UG / PG Badge */}
-                  
-                </div>
-                <div className="p-4">
-                  <div className="space-y-1.5 mb-4">
-                    <div className="flex gap-2 text-xs text-gray-600">
-                      <span className="font-bold text-gray-800">Eligibility:</span>
-                      <span>{p.eligibility}</span>
-                    </div>
-                    <div className="flex gap-2 text-xs text-gray-600">
-                      <span className="font-bold text-gray-800">Duration:</span>
-                      <span>{p.duration}</span>
-                    </div>
-                    <div className="flex gap-2 text-xs text-gray-600">
-                      <span className="font-bold text-gray-800">Fees:</span>
-                      <span className="text-blue-500 font-bold">{p.fee}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEnquiryProgram(p.title);
-                      setEnquiryOpen(true);
-                    }}
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg text-sm transition-all"
-                  >
-                    Apply Now
-                  </button>
-                </div>
+          {/* Content */}
+          <div className="p-4 space-y-3">
+
+            {/* Title + specialization */}
+            <div className="flex justify-between items-start gap-2">
+              <h3 className="text-black font-bold text-lg leading-tight">
+                {p.title}
+              </h3>
+
+              {p.specialization && (
+                <span className="text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-1 rounded-md whitespace-nowrap">
+                  {p.specialization}
+                </span>
+              )}
+            </div>
+
+           
+
+            {/* UG / PG badge */}
+            {p.level && (
+              <div className="text-center">
+                <span className="text-xs font-semibold bg-green-50 text-green-700 px-3 py-1 rounded-full">
+                  {p.level} Program
+                </span>
               </div>
-            ))}
+            )}
+
+            {/* Details */}
+            <div className="space-y-1.5 pt-2 border-t">
+              <div className="flex gap-2 text-xs text-gray-600">
+                <span className="font-bold text-gray-800">Eligibility:</span>
+                <span>{p.eligibility}</span>
+              </div>
+
+              <div className="flex gap-2 text-xs text-gray-600">
+                <span className="font-bold text-gray-800">Duration:</span>
+                <span>{p.duration}</span>
+              </div>
+
+              <div className="flex gap-2 text-xs text-gray-600">
+                <span className="font-bold text-gray-800">Fees:</span>
+                <span className="text-gray-700 ">{p.fee}</span>
+              </div>
+
+               {/* Apply button */}
+            <button
+              onClick={() => {
+                setEnquiryProgram(p.title);
+                setEnquiryOpen(true);
+              }}
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2.5 rounded-lg text-sm transition-all"
+            >
+              Apply Now
+            </button>
+            </div>
+
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+
+  </div>
+</section>
 
       <section className="py-24 bg-gray-100">
   <div className="max-w-5xl mx-auto px-6">

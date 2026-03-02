@@ -19,8 +19,8 @@ const indianStates: string[] = [
 ];
 
 const courses: string[] = [
-  "Online MBA", "Online M.Com", "Online MCA", "Online MA",
-  "Online M.Sc (Mathematics)", "Online BCA", "Online BBA", "Online BA",
+  "Online MBA","MBA(Dual Specilization)", "Online MCA", "Online MCom", "Online BBA",  "Online BCA",  "Online BCom",
+ 
 ];
 
 export default function EnquiryModal({ open, onClose, program }: Props) {
@@ -85,25 +85,35 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
         
 
         {/* Heading */}
-        <h2 className="font-patrick text-center text-gray-900 font-bold text-base md:text-lg px-6">
+        <h2 className=" text-center text-gray-900 font-bold text-base md:text-lg px-6">
           Speak to an admission counsellor
         </h2>
-
+        <h2 className=" text-center text-blue-500 font-bold text-base md:text-lg px-6">
+          Avail No Cost EMI's
+        </h2>
         {/* Badges */}
-        <div className="flex justify-center gap-4 mt-2 mb-4">
-          <span className="flex items-center gap-1 text-teal-600 font-semibold text-xs md:text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            Online Exam
-          </span>
-          <span className="flex items-center gap-1 text-teal-600 font-semibold text-xs md:text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            100% Placement Assistance
-          </span>
-        </div>
+       <div className="flex justify-center gap-4 mt-2 mb-4 flex-wrap">
+  {/* First badge */}
+  <span className="flex items-center gap-1 text-teal-600 font-semibold text-xs md:text-sm">
+    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+    </svg>
+    Online Exam
+  </span>
+
+  {/* Second badge */}
+  <span className="flex flex-col items-center text-teal-600 font-semibold text-xs md:text-sm max-w-[120px]">
+    <span className="flex items-center gap-1 justify-center">
+      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      </svg>
+      Placement/Career
+    </span>
+    <span className="text-center">
+      Support (as applicable)
+    </span>
+  </span>
+</div>
 
         {/* Form */}
         <form onSubmit={submit} className="px-6 pb-6 space-y-3">

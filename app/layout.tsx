@@ -13,24 +13,24 @@ const kalam = Kalam({ subsets: ["latin"], weight: ["300", "400", "700"], variabl
 const patrick = Patrick_Hand({ subsets: ["latin"], weight: "400", variable: "--font-patrick", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Ignou Online Admission 2026 | Lovely Professional University",
+  title: "Ignou Online Admission 2026 ",
   description:
     "Apply for Ignou Online Admission 2026. UGC-entitled online UG & PG programs with flexible learning, mentorship, and placement support.",
   keywords: [
     "Ignou Online",
-    "Lovely Professional University",
+    
     "Ignou Admission 2026",
     "Online MBA",
     "Online BCA",
     "Online BBA",
     "Distance Learning",
   ],
-  metadataBase: new URL("https://onlineuniversityadmission.online"),
+  metadataBase: new URL("https://ignou-online-7atb.vercel.app/"),
   openGraph: {
     title: "Ignou Online Admission 2026 | Lovely Professional University",
     description:
       "Enroll in Ignou's UGC-entitled online UG/PG programs. Learn anywhere with flexible schedules and industry-focused curriculum.",
-    url: "https://onlineuniversityadmission.online",
+    url: "https://ignou-online-7atb.vercel.app/",
     siteName: "Ignou Online",
     type: "website",
   },
@@ -54,18 +54,8 @@ export default function RootLayout({
       >
         {children}
 
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17973403972"
-          strategy="afterInteractive"
-        />
-        <Script id="google-ads" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config',  'AW-17973400000');
-          `}
-        </Script>
+       
+       
 
       </body>
     </html>
