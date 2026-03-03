@@ -390,9 +390,7 @@ useEffect(() => {
               ))}
             </div>
 
-            <p className="text-black text-2xl md:text-2xl mb-5 leading-relaxed">
-              Explore IGNOU programmes. For admissions, please refer to the official IGNOU website.
-            </p>
+           
             <div className="mb-4 md:hidden">
               <img
                 src="/ignou.jpg"
