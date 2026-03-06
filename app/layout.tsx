@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ignou Online Admission 2026 | Lovely Professional University",
+    title: "Ignou Online Admission 2026 | ",
     description:
       "Apply now for Ignou Online Admissions 2026. UGC-entitled programs with mentorship and placement support.",
   },
