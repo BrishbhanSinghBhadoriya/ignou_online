@@ -47,10 +47,21 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
     setError(null);
     setSuccess(null);
     try {
+      const currentUrl = typeof window !== "undefined" ? window.location.href : "";
       const res = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, state, program: prog }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          state,
+          program: prog,
+          url: currentUrl,
+          source: currentUrl,
+          campaign: "meta",
+          university: "Ignou University",
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");

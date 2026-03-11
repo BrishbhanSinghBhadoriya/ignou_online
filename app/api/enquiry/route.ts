@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
     const program = typeof body?.program === "string" ? body.program.trim() : "";
     const message = typeof body?.message === "string" ? body.message.trim() : "";
     const url = typeof body?.url === "string" ? body.url.trim() : "";
+    const source = typeof body?.source === "string" ? body.source.trim() : "";
+    const campaign = typeof body?.campaign === "string" ? body.campaign.trim() : "";
+    const university = typeof body?.university === "string" ? body.university.trim() : "";
 
     if (!name || !email || !phone) {
       return NextResponse.json({ error: "name, email, phone are required" }, { status: 400 });
@@ -34,8 +37,9 @@ export async function POST(req: NextRequest) {
       phone,
       program: program || null,
       message: message || null,
-      url: url || null,
-      source: "Ignouonline",
+      source: source || url || "Ignouonline",
+      campaign: campaign || null,
+      university: university || null,
       createdAt: new Date(),
     };
     const result = await db.collection(collectionName).insertOne(doc);
@@ -53,8 +57,10 @@ export async function POST(req: NextRequest) {
             phone,
             program: program || null,
             message: message || null,
-            url: url || null,
-            source: "Ignouonline",
+            
+            source: source || url || "Ignouonline",
+            campaign: campaign || null,
+            university: university || null,
           }),
         });
 
@@ -65,10 +71,11 @@ export async function POST(req: NextRequest) {
             statusText: crmResponse.statusText,
             errorData,
           });
+          return NextResponse.json({ error: "Failed to send data to CRM. Please try again later." }, { status: 502 });
         }
       } catch (crmErr) {
         console.error("Failed to send lead to CRM:", crmErr);
-        
+        return NextResponse.json({ error: "Failed to send data to CRM. Please try again later." }, { status: 502 });
       }
     }
 
