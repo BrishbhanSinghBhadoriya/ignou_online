@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
@@ -43,13 +44,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
     };
 
-    const client = await clientPromise;
-    const db = client.db(dbName);
-    const result = await db.collection(collectionName).insertOne(doc);
-
     const apiEndpoint = process.env.API_ENDPOINT;
-    // NeoDove / Neodove Custom Integration: keys must be "name", "mobile", "email" (mobile mandatory).
-    // Pehle hum "phone" bhej rahe the — CRM lead create nahi karti thi.
     const crmPayload: Record<string, string | null> = {
       name,
       mobile: cleanPhone,
@@ -65,13 +60,23 @@ export async function POST(req: NextRequest) {
       if (crmPayload[k] === null || crmPayload[k] === "") delete crmPayload[k];
     });
 
-    // CRM ko await: lead DB ke baad CRM tak pakka pahunche; fail par user ko error (retry kar sake)
-    if (apiEndpoint) {
+    const endpoint = apiEndpoint;
+    const payload = { ...crmPayload };
+
+    after(async () => {
       try {
-        const crmResponse = await fetch(apiEndpoint, {
+        const client = await clientPromise;
+        if (!client) {
+          console.error("Enquiry after(): Mongo client unavailable");
+          return;
+        }
+        const db = client.db(dbName);
+        await db.collection(collectionName).insertOne(doc);
+        if (!endpoint) return;
+        const crmResponse = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(crmPayload),
+          body: JSON.stringify(payload),
         });
         if (!crmResponse.ok) {
           const errText = await crmResponse.text();
@@ -79,28 +84,20 @@ export async function POST(req: NextRequest) {
           try {
             errorData = JSON.parse(errText);
           } catch {
-            /* plain text e.g. error message */
+            /* plain text */
           }
           console.error("CRM API Error:", {
             status: crmResponse.status,
             statusText: crmResponse.statusText,
             errorData,
           });
-          return NextResponse.json(
-            { error: "Failed to send data to CRM. Please try again later." },
-            { status: 502 }
-          );
         }
-      } catch (crmErr) {
-        console.error("Failed to send lead to CRM:", crmErr);
-        return NextResponse.json(
-          { error: "Failed to send data to CRM. Please try again later." },
-          { status: 502 }
-        );
+      } catch (e) {
+        console.error("Enquiry background (Mongo/CRM) failed:", e);
       }
-    }
+    });
 
-    return NextResponse.json({ ok: true, id: result.insertedId }, { status: 201 });
+    return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
