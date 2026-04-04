@@ -31,9 +31,7 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
   const [state, setState] = useState<string>("");
   const [prog, setProg] = useState<string>(program ?? "");
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const PHONE = "7042646766";
 
   useEffect(() => {
     setProg(program ?? "");
@@ -45,7 +43,6 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(null);
     try {
       const currentUrl = typeof window !== "undefined" ? window.location.href : "";
       const res = await fetch("/api/enquiry", {
@@ -65,12 +62,8 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");
-      setSuccess("Thanks! Your enquiry has been submitted.");
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
-      // Redirect to thank you page after a short delay to show success state (optional, but requested redirect)
-      setTimeout(() => {
-        router.push("/thanks");
-      }, 1000);
+      router.push("/thanks");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit";
       setError(msg);
@@ -211,10 +204,6 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
             I authorize a representative to contact me via phone and/or email. This will override registry on DND/NDNC.
           </p>
 
-          {/* Success / Error */}
-          {success && (
-            <div className="text-green-600 text-sm font-bold text-center">{success}</div>
-          )}
           {error && (
             <div className="text-red-600 text-sm font-bold text-center">{error}</div>
           )}
@@ -232,42 +221,6 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
 
         </form>
       </div>
-      {success ? (
-        <div className="fixed inset-0 z-[110] flex items-end md:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-green-200 w-full max-w-sm p-6 text-center">
-            <div className="text-green-600 font-extrabold text-lg mb-2">Submission Successful</div>
-            <div className="text-gray-600 text-sm mb-5">
-              Our team will contact you shortly. You can also reach us directly now.
-            </div>
-            <div className="flex gap-3">
-              <a
-                href={`tel:${PHONE}`}
-                onClick={() => {
-                  setSuccess(null);
-                  onClose();
-                }}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-sm"
-              >
-                Call {PHONE}
-              </a>
-              <a
-                href={`https://wa.me/91${PHONE}?text=${encodeURIComponent(
-                  `Hi, I submitted an enquiry for ${prog || "Ignou Online"}`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  setSuccess(null);
-                  onClose();
-                }}
-                className="flex-1 bg-[#25D366] hover:brightness-95 text-white font-bold py-2.5 rounded-lg text-sm"
-              >
-                WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
