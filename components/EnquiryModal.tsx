@@ -6,6 +6,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   program?: string | null;
+  /** Root home: "meta". Ignou-university page: "Google_search". */
+  campaign?: string;
 };
 
 const indianStates: string[] = [
@@ -23,7 +25,7 @@ const courses: string[] = [
  
 ];
 
-export default function EnquiryModal({ open, onClose, program }: Props) {
+export default function EnquiryModal({ open, onClose, program, campaign = "meta" }: Props) {
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -56,7 +58,7 @@ export default function EnquiryModal({ open, onClose, program }: Props) {
           program: prog,
           url: currentUrl,
           source: currentUrl,
-          campaign: "meta",
+          campaign,
           university: "Ignou University",
         }),
       });

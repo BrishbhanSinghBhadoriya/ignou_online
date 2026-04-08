@@ -431,7 +431,7 @@ useEffect(() => {
             </div>
             {/* Mobile-only inline enquiry form after buttons and admission note */}
             <div className="mt-4 md:hidden bg-white border border-blue-200 rounded-xl p-4 shadow-sm">
-              <InlineMobileEnquiry campaign="Meta_search" />
+              <InlineMobileEnquiry campaign="Google_search" />
             </div>
           </div>
 
@@ -841,7 +841,7 @@ useEffect(() => {
 
         </div>
       </footer>
-      <EnquiryModal open={enquiryOpen} onClose={() => setEnquiryOpen(false)} program={enquiryProgram} campaign="Meta_search" />
+      <EnquiryModal open={enquiryOpen} onClose={() => setEnquiryOpen(false)} program={enquiryProgram} campaign="Google_search" />
     </div>
   );
 }
