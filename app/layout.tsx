@@ -1,6 +1,6 @@
 // app/layout.tsx
 // URL      : https://universitydegreeadmission.online
-// SEO Score: 100 / 100
+ // SEO Score: 100 / 100
 // Tracking : Meta Pixel 1230848505368304
 //            → PageView  : fires here automatically on every page
 //            → Lead      : fires on /thanks/page.tsx via useEffect
@@ -412,23 +412,6 @@ export default function RootLayout({
             • strategy="afterInteractive" — loads after hydration,
               does NOT block LCP page render
             • fbq('track','PageView') fires on every page automatically
-
-            CONVERSION EVENT — fires on /thanks page (not here):
-            ┌──────────────────────────────────────────────────────────┐
-            │  app/thanks/page.tsx                                     │
-            │  useEffect(() => {                                       │
-            │    window.fbq('track', 'Lead', {                        │
-            │      content_name: 'IGNOU Online Application',          │
-            │      currency: 'INR', value: 1                          │
-            │    });                                                   │
-            │  }, []);                                                 │
-            └──────────────────────────────────────────────────────────┘
-
-            In page.tsx the form already does:
-              router.push("/thanks")  ← after successful submission
-            So Lead fires automatically when user lands on /thanks.
-
-            Set 'Lead' as your optimisation event in Meta Ads Manager.
         ══════════════════════════════════════════════════════════════════ */}
         <Script id="meta-pixel-init" strategy="afterInteractive">
           {`
@@ -442,14 +425,12 @@ export default function RootLayout({
               t.src=v;s=b.getElementsByTagName(e)[0];
               s.parentNode.insertBefore(t,s)
             }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${META_PIXEL_ID}');
+            fbq('init', '1230848505368304');
             fbq('track', 'PageView');
           `}
         </Script>
 
         {/* Meta Pixel noscript fallback — for JS-disabled browsers */}
-        {/* Next.js does not render <noscript> in <head> correctly,  */}
-        {/* so we use an inline script that appends the pixel image. */}
         <script
           id="meta-pixel-noscript"
           dangerouslySetInnerHTML={{
@@ -457,7 +438,7 @@ export default function RootLayout({
               (function(){
                 var img = document.createElement('img');
                 img.height = 1; img.width = 1; img.style.display = 'none';
-                img.src = 'https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1';
+                img.src = 'https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1';
                 img.alt = '';
                 document.head.appendChild(img);
               })();

@@ -1,9 +1,9 @@
 // app/layout.tsx
 // URL      : https://universitydegreeadmission.online
 // SEO Score: 100 / 100
-// Tracking : Meta Pixel 1230848505368304
+// Tracking : Google Ads AW-17973411670
 //            → PageView  : fires here automatically on every page
-//            → Lead      : fires on /thanks/page.tsx via useEffect
+//            → Conversion: fires on /thanks/page.tsx via gtag
 
 import type { Metadata } from "next";
 import { Poppins, Kalam, Patrick_Hand } from "next/font/google";
@@ -32,9 +32,6 @@ const patrick = Patrick_Hand({
 
 // ─── Constants (change only here if anything changes) ─────────────────────────
 const BASE_URL      = "https://universitydegreeadmission.online";
-
-// ✅ Exported — /thanks/page.tsx imports this to call fbq('track','Lead')
-//export const META_PIXEL_ID = "1230848505368304";
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
@@ -407,65 +404,24 @@ export default function RootLayout({
         />
 
         {/* ══════════════════════════════════════════════════════════════════
-            META (FACEBOOK) PIXEL  —  ID: 1230848505368304
+            GOOGLE TAG (GTAG.JS)  —  ID: AW-17973411670
             ─────────────────────────────────────────────────────────────
             • strategy="afterInteractive" — loads after hydration,
               does NOT block LCP page render
-            • fbq('track','PageView') fires on every page automatically
-
-            CONVERSION EVENT — fires on /thanks page (not here):
-            ┌──────────────────────────────────────────────────────────┐
-            │  app/thanks/page.tsx                                     │
-            │  useEffect(() => {                                       │
-            │    window.fbq('track', 'Lead', {                        │
-            │      content_name: 'IGNOU Online Application',          │
-            │      currency: 'INR', value: 1                          │
-            │    });                                                   │
-            │  }, []);                                                 │
-            └──────────────────────────────────────────────────────────┘
-
-            In page.tsx the form already does:
-              router.push("/thanks")  ← after successful submission
-            So Lead fires automatically when user lands on /thanks.
-
-            Set 'Lead' as your optimisation event in Meta Ads Manager.
         ══════════════════════════════════════════════════════════════════ */}
-{/*
-        <Script id="meta-pixel-init" strategy="afterInteractive">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17973411670"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
           {`
-            !function(f,b,e,v,n,t,s){
-              if(f.fbq)return;
-              n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;
-              n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)
-            }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${META_PIXEL_ID}');
-            fbq('track', 'PageView');
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'AW-17973411670');
           `}
         </Script>
-
-        {/* Meta Pixel noscript fallback — for JS-disabled browsers */}
-        {/* Next.js does not render <noscript> in <head> correctly,  */}
-        {/* so we use an inline script that appends the pixel image. */}
-     {/*   <script
-          id="meta-pixel-noscript"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                var img = document.createElement('img');
-                img.height = 1; img.width = 1; img.style.display = 'none';
-                img.src = 'https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1';
-                img.alt = '';
-                document.head.appendChild(img);
-              })();
-            `,
-          }}
-        />
-*/}
       </head>
 
       <body

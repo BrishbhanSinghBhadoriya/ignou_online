@@ -84,7 +84,8 @@ function InlineMobileEnquiry({ campaign }: { campaign: string }) {
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
-      router.push("/thanks");
+      const redirectSource = campaign === "Google_search" ? "google" : "meta";
+      router.push(`/thanks?from=${redirectSource}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit";
       setError(msg);

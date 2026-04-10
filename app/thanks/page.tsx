@@ -1,22 +1,52 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Script from "next/script";
 
-export default function ThankYouPage() {
-  const [mounted, setMounted] = useState(false);
+function ThankYouContent() {
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+  const [fired, setFired] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    if (fired) return; // Prevent double firing if useEffect re-runs
 
-  
-
-    // ✅ Meta Pixel - LeadNew fires ONLY on Thank You page
-    if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-      (window as any).fbq("track", "LeadNew");
+    // 1. Google Ads Conversion
+    if (from === "google") {
+      if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+        (window as any).gtag("event", "conversion", {
+          send_to: "17973411670/H0R4CLKf_YAcENb-sfpC",
+        });
+        console.log("✅ Google Ads conversion fired (source: google)");
+        setFired(true);
+      }
     }
-  }, []);
 
-  if (!mounted) return null;
+    // 2. Meta Pixel - Lead
+    if (from === "meta") {
+      if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+        (window as any).fbq("track", "LeadNew");
+        console.log("✅ Meta Lead conversion fired (source: meta)");
+        setFired(true);
+      } else {
+        // Fallback retry if fbq not loaded yet
+        const timer = setTimeout(() => {
+          if (typeof (window as any).fbq === "function") {
+            (window as any).fbq("track", "LeadNew");
+            console.log("✅ Meta Lead conversion fired (source: meta, delayed)");
+            setFired(true);
+          }
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+
+    // 3. Fallback (if direct navigation to /thanks without parameters)
+    if (!from) {
+      console.log("ℹ️ No conversion source detected. No conversion fired.");
+    }
+  }, [from, fired]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
@@ -47,8 +77,29 @@ export default function ThankYouPage() {
       </div>
       <div className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-red-500 to-green-500"></div>
       <div className="mt-16 text-gray-400 text-sm">
-        &copy; {new Date().getFullYear()} Lovely Professional University Online. All rights reserved.
+        &copy; {new Date().getFullYear()} Ignou University Online. All rights reserved.
       </div>
     </div>
+  );
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={null}>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=AW-17973411670"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics-thanks" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'AW-17973411670');
+        `}
+      </Script>
+      <ThankYouContent />
+    </Suspense>
   );
 }
