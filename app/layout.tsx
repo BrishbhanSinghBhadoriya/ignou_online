@@ -339,18 +339,6 @@ export default function RootLayout({
     <html lang="en-IN">
       <head>
 
-        {/* ── Sitemap ───────────────────────────────────────────────────── */}
-        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-
-        {/* ── LCP Image Preload ─────────────────────────────────────────── */}
-        {/* Preloads hero image so LCP score improves */}
-        <link
-          rel="preload" as="image"
-          href={`${BASE_URL}/ignou.jpg`}
-          type="image/jpeg"
-        />
-
-        {/* ── Branding ──────────────────────────────────────────────────── */}
         {/* theme-color brands the Chrome mobile address bar */}
         <meta name="theme-color" content="#3b82f6" />
 
@@ -406,46 +394,34 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
 
-        {/* ══════════════════════════════════════════════════════════════════
-            META (FACEBOOK) PIXEL  —  ID: 1230848505368304
-            ─────────────────────────────────────────────────────────────
-            • strategy="afterInteractive" — loads after hydration,
-              does NOT block LCP page render
-            • fbq('track','PageView') fires on every page automatically
-        ══════════════════════════════════════════════════════════════════ */}
-        <Script id="meta-pixel-init" strategy="afterInteractive">
-          {`
-            !function(f,b,e,v,n,t,s){
-              if(f.fbq)return;
-              n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;
-              n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)
-            }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '1230848505368304');
-            fbq('track', 'PageView');
-          `}
-        </Script>
-
-        {/* Meta Pixel noscript fallback — for JS-disabled browsers */}
+        {/* ── Meta (Facebook) Pixel ─────────────────────────────────────── */}
         <script
-          id="meta-pixel-noscript"
           dangerouslySetInnerHTML={{
             __html: `
-              (function(){
-                var img = document.createElement('img');
-                img.height = 1; img.width = 1; img.style.display = 'none';
-                img.src = 'https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1';
-                img.alt = '';
-                document.head.appendChild(img);
-              })();
+              !function(f,b,e,v,n,t,s){
+                if(f.fbq)return;
+                n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;
+                n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)
+              }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '1230848505368304');
+              fbq('track', 'PageView');
             `,
           }}
         />
-
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
       </head>
 
       <body

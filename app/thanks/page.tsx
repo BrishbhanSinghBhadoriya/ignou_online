@@ -1,52 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, Suspense } from "react";
 import Script from "next/script";
 
 function ThankYouContent() {
-  const searchParams = useSearchParams();
-  const from = searchParams.get("from");
-  const [fired, setFired] = useState(false);
-
   useEffect(() => {
-    if (fired) return; // Prevent double firing if useEffect re-runs
-
-    // 1. Google Ads Conversion
-    if (from === "google") {
-      if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
-        (window as any).gtag("event", "conversion", {
-          send_to: "17973411670/H0R4CLKf_YAcENb-sfpC",
-        });
-        console.log("✅ Google Ads conversion fired (source: google)");
-        setFired(true);
-      }
-    }
-
-    // 2. Meta Pixel - Lead
-    if (from === "meta") {
-      if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-        (window as any).fbq("track", "LeadNew");
-        console.log("✅ Meta Lead conversion fired (source: meta)");
-        setFired(true);
-      } else {
-        // Fallback retry if fbq not loaded yet
-        const timer = setTimeout(() => {
-          if (typeof (window as any).fbq === "function") {
-            (window as any).fbq("track", "LeadNew");
-            console.log("✅ Meta Lead conversion fired (source: meta, delayed)");
-            setFired(true);
-          }
-        }, 2000);
-        return () => clearTimeout(timer);
-      }
-    }
-
-    // 3. Fallback (if direct navigation to /thanks without parameters)
-    if (!from) {
-      console.log("ℹ️ No conversion source detected. No conversion fired.");
-    }
-  }, [from, fired]);
+    // Conversions (Google Ads & Meta Lead) are now handled by plain <script> tags 
+    // in the head section of this page for maximum reliability and speed.
+    console.log("✅ Conversion scripts initialized in head.");
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
@@ -86,19 +48,45 @@ function ThankYouContent() {
 export default function ThankYouPage() {
   return (
     <Suspense fallback={null}>
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=AW-17973411670"
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics-thanks" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+      {/* ── Google Tag (gtag.js) ───────────────────────────────────────── */}
+      <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17973411670"></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17973411670');
+            
+            // Detect source from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from');
 
-          gtag('config', 'AW-17973411670');
-        `}
-      </Script>
+            // 1. Google Ads Conversion - Only if from=google
+            if (from === 'google') {
+              gtag('event', 'conversion', {'send_to': 'AW-17973411670/H0R4CLKf_YAcENb-sfpC'});
+              console.log('✅ Google Ads conversion fired');
+            }
+
+            // 2. Meta Pixel Lead - Only if from=meta
+            if (from === 'meta') {
+              !function(f,b,e,v,n,t,s){
+                if(f.fbq)return;
+                n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;
+                n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)
+              }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '1230848505368304');
+              fbq('track', 'Lead');
+              console.log('✅ Meta Lead conversion fired');
+            }
+          `,
+        }}
+      />
       <ThankYouContent />
     </Suspense>
   );
