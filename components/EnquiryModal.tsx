@@ -65,7 +65,13 @@ export default function EnquiryModal({ open, onClose, program, campaign = "meta"
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
-      const redirectSource = campaign === "Google_search" ? "google" : "meta";
+
+      // Google Ads conversions ke liye: `from=google` tabhi bhejein jab
+      // ya to campaign Google_search ho, ya URL me `gclid` present ho.
+      const searchParams = new URLSearchParams(window.location.search);
+      const hasGclid = Boolean(searchParams.get("gclid"));
+      const redirectSource =
+        (campaign === "Google_search" || hasGclid) ? "google" : "meta";
       router.push(`/thanks?from=${redirectSource}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit";
