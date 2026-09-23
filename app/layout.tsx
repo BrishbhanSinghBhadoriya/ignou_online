@@ -436,68 +436,14 @@ export default function RootLayout({
             `,
           }}
         />
-
-        {/* ── Traffic source detection — capture on landing, persist in sessionStorage ── */}
-        {/*
-          Runs on every page load. Detects Meta/OpenAI traffic from URL params
-          and stores the source in sessionStorage so the Thanks page can read it
-          even after Next.js client-side navigation wipes the URL params.
-
-          Detection priority:
-            1. fbclid param        → "meta"
-            2. utm_source=facebook/instagram/meta → "meta"
-            3. oai_src / oai_campaign param → "openai"
-            4. utm_source=openai / chatgpt  → "openai"
-            5. referrer contains openai.com / chatgpt.com → "openai"
-
-          Only writes once per session (does not overwrite an existing value).
+        {/* NOTE: No traffic-source-capture script here.
+            Source ("meta" or "openai") is written to sessionStorage directly
+            by the form submit handler ONLY after a successful API response.
+            app/page.tsx (landing)      → sets "meta"
+            ignou-university/page.tsx   → sets "openai"
+            EnquiryModal (landing)      → sets "meta"
+            EnquiryModal (ignou-univ)   → sets "openai"
         */}
-        <Script
-          id="traffic-source-capture"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  // Don't overwrite a source already captured this session
-                  if (sessionStorage.getItem('lead_source')) return;
-
-                  var p = new URLSearchParams(window.location.search);
-                  var utmSrc = (p.get('utm_source') || '').toLowerCase();
-                  var ref    = (document.referrer || '').toLowerCase();
-                  var src    = '';
-
-                  // Meta signals
-                  if (
-                    p.get('fbclid') ||
-                    utmSrc === 'facebook' ||
-                    utmSrc === 'instagram' ||
-                    utmSrc === 'meta' ||
-                    utmSrc === 'fb'
-                  ) {
-                    src = 'meta';
-                  }
-                  // OpenAI signals
-                  else if (
-                    p.get('oai_src') ||
-                    p.get('oai_campaign') ||
-                    utmSrc === 'openai' ||
-                    utmSrc === 'chatgpt' ||
-                    ref.indexOf('openai.com') !== -1 ||
-                    ref.indexOf('chatgpt.com') !== -1
-                  ) {
-                    src = 'openai';
-                  }
-
-                  if (src) {
-                    sessionStorage.setItem('lead_source', src);
-                    console.log('[Tracking] Traffic source captured:', src);
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
       </head>
 
       <body
