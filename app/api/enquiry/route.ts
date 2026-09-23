@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { after } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
@@ -7,98 +6,108 @@ export async function POST(req: NextRequest) {
     if (!clientPromise) {
       return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
-    const dbName = process.env.MONGODB_DB || "ignou_online";
+
+    const dbName        = process.env.MONGODB_DB        || "ignou_online";
     const collectionName = process.env.MONGODB_COLLECTION || "leads";
-    const body = await req.json();
-    const name = typeof body?.name === "string" ? body.name.trim() : "";
-    const email = typeof body?.email === "string" ? body.email.trim() : "";
-    const phone = typeof body?.phone === "string" ? body.phone.trim() : "";
-    const state = typeof body?.state === "string" ? body.state.trim() : "";
-    const program = typeof body?.program === "string" ? body.program.trim() : "";
-    const message = typeof body?.message === "string" ? body.message.trim() : "";
-    const url = typeof body?.url === "string" ? body.url.trim() : "";
-    const source = typeof body?.source === "string" ? body.source.trim() : "";
-    const campaign = typeof body?.campaign === "string" ? body.campaign.trim() : "";
+
+    const body      = await req.json();
+    const name      = typeof body?.name      === "string" ? body.name.trim()      : "";
+    const email     = typeof body?.email     === "string" ? body.email.trim()     : "";
+    const phone     = typeof body?.phone     === "string" ? body.phone.trim()     : "";
+    const state     = typeof body?.state     === "string" ? body.state.trim()     : "";
+    const program   = typeof body?.program   === "string" ? body.program.trim()   : "";
+    const message   = typeof body?.message   === "string" ? body.message.trim()   : "";
+    const url       = typeof body?.url       === "string" ? body.url.trim()       : "";
+    const source    = typeof body?.source    === "string" ? body.source.trim()    : "";
+    const campaign  = typeof body?.campaign  === "string" ? body.campaign.trim()  : "";
     const university = typeof body?.university === "string" ? body.university.trim() : "";
 
+    // ── Validation ────────────────────────────────────────────────────────
     if (!name || !email || !phone) {
       return NextResponse.json({ error: "name, email, phone are required" }, { status: 400 });
     }
 
-    // ✅ Phone validation: exactly 10 digits
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length !== 10) {
-      return NextResponse.json({ error: "Please enter a valid 10-digit phone number." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Please enter a valid 10-digit phone number." },
+        { status: 400 }
+      );
     }
 
+    // ── MongoDB document ──────────────────────────────────────────────────
     const doc = {
       name,
-      email: email.toLowerCase(),
+      email:     email.toLowerCase(),
       phone,
-      state: state || null,
-      program: program || null,
-      message: message || null,
-      source: source || url || "Ignouonline",
-      campaign: campaign || null,
+      state:     state    || null,
+      program:   program  || null,
+      message:   message  || null,
+      source:    source   || url || "Ignouonline",
+      campaign:  campaign || null,
       university: university || null,
       createdAt: new Date(),
     };
 
+    // ── CRM payload ───────────────────────────────────────────────────────
     const apiEndpoint = process.env.API_ENDPOINT;
-    const crmPayload: Record<string, string | null> = {
+
+    const crmPayload: Record<string, string> = {
       name,
-      mobile: cleanPhone,
-      email: email.toLowerCase(),
-      State: state || "",
-      program: program || null,
-      message: message || null,
-      source: source || url || "Ignouonline",
-      campaign: campaign || null,
-      university: university || null,
+      mobile:    cleanPhone,
+      email:     email.toLowerCase(),
+      State:     state    || "",
+      program:   program  || "",
+      source:    source   || url || "Ignouonline",
+      campaign:  campaign || "",
+      university: university || "",
     };
-    Object.keys(crmPayload).forEach((k) => {
-      if (crmPayload[k] === null || crmPayload[k] === "") delete crmPayload[k];
+    // Remove empty strings — CRM does not want blank fields
+    (Object.keys(crmPayload) as string[]).forEach((k) => {
+      if (!crmPayload[k]) delete crmPayload[k];
     });
 
-    const endpoint = apiEndpoint;
-    const payload = { ...crmPayload };
+    // ── Step 1: Save to MongoDB ───────────────────────────────────────────
+    try {
+      const client = await clientPromise;
+      const db     = client!.db(dbName);
+      await db.collection(collectionName).insertOne(doc);
+      console.log("✅ Lead saved to MongoDB");
+    } catch (dbErr) {
+      console.error("❌ MongoDB insert failed:", dbErr);
+      // Continue — still try CRM even if Mongo fails
+    }
 
-    after(async () => {
+    // ── Step 2: Push to CRM (runs BEFORE response, no after()) ───────────
+    if (apiEndpoint) {
       try {
-        const client = await clientPromise;
-        if (!client) {
-          console.error("Enquiry after(): Mongo client unavailable");
-          return;
-        }
-        const db = client.db(dbName);
-        await db.collection(collectionName).insertOne(doc);
-        if (!endpoint) return;
-        const crmResponse = await fetch(endpoint, {
-          method: "POST",
+        const crmResponse = await fetch(apiEndpoint, {
+          method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body:    JSON.stringify(crmPayload),
         });
-        if (!crmResponse.ok) {
+
+        if (crmResponse.ok) {
+          console.log("✅ Lead sent to CRM successfully");
+        } else {
           const errText = await crmResponse.text();
-          let errorData: unknown = errText;
-          try {
-            errorData = JSON.parse(errText);
-          } catch {
-            /* plain text */
-          }
-          console.error("CRM API Error:", {
-            status: crmResponse.status,
+          console.error("❌ CRM API error:", {
+            status:     crmResponse.status,
             statusText: crmResponse.statusText,
-            errorData,
+            body:       errText,
           });
         }
-      } catch (e) {
-        console.error("Enquiry background (Mongo/CRM) failed:", e);
+      } catch (crmErr) {
+        console.error("❌ CRM fetch failed:", crmErr);
       }
-    });
+    } else {
+      console.warn("⚠️ API_ENDPOINT not set — CRM push skipped");
+    }
 
     return NextResponse.json({ ok: true }, { status: 201 });
+
   } catch (err) {
+    console.error("❌ Enquiry API unexpected error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

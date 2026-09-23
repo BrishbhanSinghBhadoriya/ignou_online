@@ -86,7 +86,7 @@ function InlineMobileEnquiry({ campaign }: { campaign: string }) {
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
 
       // ── Set conversion source AFTER successful API response ──────────────
-      // app/page.tsx (root home) always fires Meta conversion
+      // app/page.tsx (root home) → always Meta conversion
       try {
         sessionStorage.setItem("lead_source", "meta");
       } catch (_) {}
@@ -848,7 +848,7 @@ useEffect(() => {
 
         </div>
       </footer>
-      <EnquiryModal open={enquiryOpen} onClose={() => setEnquiryOpen(false)} program={enquiryProgram} campaign="meta" />
+      <EnquiryModal open={enquiryOpen} onClose={() => setEnquiryOpen(false)} program={enquiryProgram} campaign="Meta_search" />
     </div>
   );
 }

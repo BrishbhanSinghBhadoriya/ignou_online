@@ -6,7 +6,12 @@ type Props = {
   open: boolean;
   onClose: () => void;
   program?: string | null;
-  /** Root home: "meta". Ignou-university page: "Google_search". */
+  /**
+   * Identifies which page the modal is on — passed straight to CRM as the
+   * campaign field. Also controls which pixel conversion fires on /thanks.
+   *   "Meta_search"   → root landing page  → Meta Lead conversion
+   *   "Google_search" → ignou-university   → OpenAI lead_created conversion
+   */
   campaign?: string;
 };
 
@@ -67,10 +72,10 @@ export default function EnquiryModal({ open, onClose, program, campaign = "meta"
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
 
       // ── Set conversion source AFTER successful API response ──────────────
-      // Root home page (app/page.tsx) uses campaign="meta" → Meta conversion
-      // ignou-university page uses campaign="Google_search" → OpenAI conversion
+      // campaign="Google_search" → ignou-university page → OpenAI conversion
+      // campaign anything else  → root landing page     → Meta conversion
       try {
-        const source = campaign === "meta" ? "meta" : "openai";
+        const source = campaign === "Google_search" ? "openai" : "meta";
         sessionStorage.setItem("lead_source", source);
       } catch (_) {}
 
