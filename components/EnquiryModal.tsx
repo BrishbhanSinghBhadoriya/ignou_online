@@ -66,13 +66,15 @@ export default function EnquiryModal({ open, onClose, program, campaign = "meta"
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
 
-      // Google Ads conversions ke liye: `from=google` tabhi bhejein jab
-      // ya to campaign Google_search ho, ya URL me `gclid` present ho.
-      const searchParams = new URLSearchParams(window.location.search);
-      const hasGclid = Boolean(searchParams.get("gclid"));
-      const redirectSource =
-        (campaign === "Google_search" || hasGclid) ? "google" : "meta";
-      router.push(`/thanks?from=${redirectSource}`);
+      // ── Set conversion source AFTER successful API response ──────────────
+      // Root home page (app/page.tsx) uses campaign="meta" → Meta conversion
+      // ignou-university page uses campaign="Google_search" → OpenAI conversion
+      try {
+        const source = campaign === "meta" ? "meta" : "openai";
+        sessionStorage.setItem("lead_source", source);
+      } catch (_) {}
+
+      router.push("/thanks");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit";
       setError(msg);

@@ -1,14 +1,12 @@
-// app/layout.tsx
+// app/ignou-university/layout.tsx
 // URL      : https://universitydegreeadmission.online
 // SEO Score: 100 / 100
-// Tracking : Google Ads AW-17973411670
-//            → PageView  : fires here automatically on every page
-//            → Conversion: fires on /thanks/page.tsx via gtag
+// Tracking : OpenAI Pixel  → init here (PageView), lead_created fires on /thanks
+//            Meta Pixel    → init + Lead fires on /thanks (only for Meta traffic)
+//            Google Ads    → REMOVED (not running Google Ads)
 
 import type { Metadata } from "next";
 import { Poppins, Kalam, Patrick_Hand } from "next/font/google";
-
-import Script from "next/script";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 const poppins = Poppins({
@@ -404,19 +402,13 @@ export default function RootLayout({
         />
 
         {/* ── Google tag (gtag.js) ───────────────────────────────────────── */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17973411670"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-17973411670');
-            `,
-          }}
-        />
-        
-        
+        {/* REMOVED — Not running Google Ads. No gtag needed.               */}
+
+        {/* ── Pixel tracking (Meta + OpenAI) ────────────────────────────── */}
+        {/* Both pixels are initialised ONCE in app/layout.tsx (root).      */}
+        {/* Do NOT re-init them here — that would cause duplicates.         */}
+        {/* Conversion events fire on /thanks after successful form submit. */}
+
       </head>
 
       <body

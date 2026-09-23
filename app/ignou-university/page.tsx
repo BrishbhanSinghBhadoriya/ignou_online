@@ -85,12 +85,13 @@ function InlineMobileEnquiry({ campaign }: { campaign: string }) {
       if (!res.ok) throw new Error(data?.error ?? "Failed to submit");
       setName(""); setEmail(""); setPhone(""); setState(""); setProg("");
 
-      // Google Ads conversions ke liye `from=google` set karein.
-      const searchParams = new URLSearchParams(window.location.search);
-      const hasGclid = Boolean(searchParams.get("gclid"));
-      const redirectSource =
-        (campaign === "Google_search" || hasGclid) ? "google" : "meta";
-      router.push(`/thanks?from=${redirectSource}`);
+      // ── Set conversion source AFTER successful API response ──────────────
+      // ignou-university page always fires OpenAI conversion
+      try {
+        sessionStorage.setItem("lead_source", "openai");
+      } catch (_) {}
+
+      router.push("/thanks");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit";
       setError(msg);

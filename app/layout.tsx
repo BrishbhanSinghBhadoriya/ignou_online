@@ -1,9 +1,11 @@
 // app/layout.tsx
 // URL      : https://universitydegreeadmission.online
- // SEO Score: 100 / 100
-// Tracking : Meta Pixel 1230848505368304
-//            → PageView  : fires here automatically on every page
-//            → Lead      : fires on /thanks/page.tsx via useEffect
+// Tracking : Meta Pixel 1230848505368304  → init here (ONE TIME, globally)
+//            OpenAI Pixel QgNVArxZhcHR1k2DxV6wqR → init here (ONE TIME, globally)
+//            Google Ads   → REMOVED (not running Google Ads)
+//
+// Conversion events (Lead / lead_created) fire ONLY on /thanks
+// after successful form submission, based on detected traffic source.
 
 import type { Metadata } from "next";
 import { Poppins, Kalam, Patrick_Hand } from "next/font/google";
@@ -394,7 +396,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
 
-        {/* ── Meta (Facebook) Pixel ─────────────────────────────────────── */}
+        {/* ── Meta (Facebook) Pixel — ONE global init ───────────────────── */}
+        {/* Lead conversion fires on /thanks only (source-gated, see below)  */}
         <Script
           id="meta-pixel"
           strategy="afterInteractive"
@@ -406,22 +409,95 @@ export default function RootLayout({
               if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
               n.queue=[];t=b.createElement(e);t.async=!0;
               t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              s.parentNode.insertBefore(t,s)}(window,document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '1230848505368304');
-              fbq('track', 'PageView');
+              fbq('init','1230848505368304');
+              fbq('track','PageView');
             `,
           }}
         />
         <noscript>
           <img
-            height="1"
-            width="1"
-            style={{ display: 'none' }}
+            height="1" width="1" style={{ display: "none" }}
             src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
             alt=""
           />
         </noscript>
+
+        {/* ── OpenAI Pixel — ONE global init ────────────────────────────── */}
+        {/* lead_created conversion fires on /thanks only (source-gated)     */}
+        <Script
+          id="openai-pixel"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");
+              oaiq("init",{pixelId:"QgNVArxZhcHR1k2DxV6wqR",debug:true});
+            `,
+          }}
+        />
+
+        {/* ── Traffic source detection — capture on landing, persist in sessionStorage ── */}
+        {/*
+          Runs on every page load. Detects Meta/OpenAI traffic from URL params
+          and stores the source in sessionStorage so the Thanks page can read it
+          even after Next.js client-side navigation wipes the URL params.
+
+          Detection priority:
+            1. fbclid param        → "meta"
+            2. utm_source=facebook/instagram/meta → "meta"
+            3. oai_src / oai_campaign param → "openai"
+            4. utm_source=openai / chatgpt  → "openai"
+            5. referrer contains openai.com / chatgpt.com → "openai"
+
+          Only writes once per session (does not overwrite an existing value).
+        */}
+        <Script
+          id="traffic-source-capture"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  // Don't overwrite a source already captured this session
+                  if (sessionStorage.getItem('lead_source')) return;
+
+                  var p = new URLSearchParams(window.location.search);
+                  var utmSrc = (p.get('utm_source') || '').toLowerCase();
+                  var ref    = (document.referrer || '').toLowerCase();
+                  var src    = '';
+
+                  // Meta signals
+                  if (
+                    p.get('fbclid') ||
+                    utmSrc === 'facebook' ||
+                    utmSrc === 'instagram' ||
+                    utmSrc === 'meta' ||
+                    utmSrc === 'fb'
+                  ) {
+                    src = 'meta';
+                  }
+                  // OpenAI signals
+                  else if (
+                    p.get('oai_src') ||
+                    p.get('oai_campaign') ||
+                    utmSrc === 'openai' ||
+                    utmSrc === 'chatgpt' ||
+                    ref.indexOf('openai.com') !== -1 ||
+                    ref.indexOf('chatgpt.com') !== -1
+                  ) {
+                    src = 'openai';
+                  }
+
+                  if (src) {
+                    sessionStorage.setItem('lead_source', src);
+                    console.log('[Tracking] Traffic source captured:', src);
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
 
       <body
