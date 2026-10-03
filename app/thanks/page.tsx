@@ -1,78 +1,79 @@
 "use client";
 // /thanks/page.tsx
 //
-// Conversion logic (page-based, not traffic-based):
-//   "meta"   → form submitted from root home page (app/page.tsx)
-//              fires: Meta fbq('track','Lead')
-//   "openai" → form submitted from ignou-university page
-//              fires: OpenAI oaiq("measure","lead_created")
+// Fires ONE conversion after successful form submission:
+//   sessionStorage "meta"   → fbq("track","LeadNew")
+//   sessionStorage "openai" → oaiq("measure","lead_created")
 //
-// Source is written to sessionStorage immediately after successful API
-// response in the form's submit handler — NOT on page load or button click.
-//
-// Rules:
-//   ✅ Fires ONCE — sessionStorage is cleared after firing
-//   ✅ useRef guard prevents React StrictMode double-invoke
-//   ✅ No pixel SDK init here — both inited in app/layout.tsx
-//   ✅ No Google Ads tracking
+// sessionStorage is cleared ONLY after the conversion fires successfully.
+// Both pixel SDKs are initialised globally in app/layout.tsx.
 
 import Link from "next/link";
 import { useEffect, useRef, Suspense } from "react";
 
-// ─── Inner component ──────────────────────────────────────────────────────────
 function ThankYouContent() {
   const hasRun = useRef(false);
 
   useEffect(() => {
-    // Prevent double-fire from React StrictMode
+    // Strict-mode / re-render guard
     if (hasRun.current) return;
     hasRun.current = true;
 
-    // ── Read source set by the form's submit handler ───────────────────────
+    // Read source — keep it in a local variable so retries can still use it
+    // even if sessionStorage is cleared (we clear AFTER success, not before)
     let source = "";
     try {
       source = sessionStorage.getItem("lead_source") || "";
-      // Clear immediately so a page refresh doesn't re-fire
-      if (source) sessionStorage.removeItem("lead_source");
-    } catch (_) { /* storage blocked */ }
+    } catch (_) {}
 
     if (!source) {
       console.log("ℹ️ No valid traffic source detected — no conversion fired.");
       return;
     }
 
-    // ── Meta conversion ────────────────────────────────────────────────────
+    // ── Meta: fbq("track","LeadNew") ──────────────────────────────────────
     if (source === "meta") {
+      let attempts = 0;
       const fire = () => {
+        attempts++;
         if (typeof (window as any).fbq === "function") {
           (window as any).fbq("track", "LeadNew");
-          console.log("✅ Meta Lead conversion fired");
+          console.log("✅ Meta LeadNew conversion fired");
+          // Clear AFTER successful fire
+          try { sessionStorage.removeItem("lead_source"); } catch (_) {}
+        } else if (attempts < 10) {
+          // fbq not ready yet — retry every 500ms (max 5s)
+          setTimeout(fire, 500);
         } else {
-          // SDK loads via afterInteractive — retry after short delay
-          setTimeout(fire, 1000);
+          console.warn("⚠️ Meta fbq never became available — conversion not fired.");
         }
       };
       fire();
       return;
     }
 
-    // ── OpenAI conversion ──────────────────────────────────────────────────
+    // ── OpenAI: oaiq("measure","lead_created") ────────────────────────────
     if (source === "openai") {
+      let attempts = 0;
       const fire = () => {
+        attempts++;
         if (typeof (window as any).oaiq === "function") {
           (window as any).oaiq("measure", "lead_created", { type: "customer_action" });
           console.log("✅ OpenAI lead_created conversion fired");
+          try { sessionStorage.removeItem("lead_source"); } catch (_) {}
+        } else if (attempts < 10) {
+          setTimeout(fire, 500);
         } else {
-          setTimeout(fire, 1000);
+          console.warn("⚠️ OpenAI oaiq never became available — conversion not fired.");
         }
       };
       fire();
       return;
     }
 
-    console.log("ℹ️ No valid traffic source detected — no conversion fired.");
+    console.log(`ℹ️ Unknown source "${source}" — no conversion fired.`);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount only
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
@@ -115,17 +116,9 @@ function ThankYouContent() {
   );
 }
 
-// ─── Page wrapper ─────────────────────────────────────────────────────────────
 export default function ThankYouPage() {
   return (
-    // Suspense not strictly needed now (no useSearchParams) but kept for safety
     <Suspense fallback={null}>
-      {/*
-        NO pixel SDK init here.
-        Meta Pixel  → initialised once in app/layout.tsx (id="meta-pixel")
-        OpenAI oaiq → initialised once in app/layout.tsx (id="openai-pixel")
-        Google Ads  → REMOVED
-      */}
       <ThankYouContent />
     </Suspense>
   );
