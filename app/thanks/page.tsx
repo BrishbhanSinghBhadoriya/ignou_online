@@ -45,7 +45,7 @@ function ThankYouContent() {
     if (source === "meta") {
       const fire = () => {
         if (typeof (window as any).fbq === "function") {
-          (window as any).fbq("track", "Lead");
+          (window as any).fbq("track", "LeadNew");
           console.log("✅ Meta Lead conversion fired");
         } else {
           // SDK loads via afterInteractive — retry after short delay
